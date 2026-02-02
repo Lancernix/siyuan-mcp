@@ -33,11 +33,11 @@ function main() {
 
   let allPassed = true;
 
-  // 检查环境
-  section("环境配置");
-  allPassed = allPassed && check(existsSync(".env.local"), "`.env.local` 配置文件存在");
-  allPassed = allPassed && check(existsSync("package.json"), "`package.json` 存在");
-  allPassed = allPassed && check(existsSync("tsconfig.json"), "`tsconfig.json` 存在");
+   // 检查环境
+   section("环境配置");
+   allPassed = allPassed && check(existsSync(".env.example"), "`.env.example` 配置模板存在");
+   allPassed = allPassed && check(existsSync("package.json"), "`package.json` 存在");
+   allPassed = allPassed && check(existsSync("tsconfig.json"), "`tsconfig.json` 存在");
 
   // 检查源代码
   section("源代码结构");
