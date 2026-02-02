@@ -1,7 +1,9 @@
 {
   "name": "@lancernix/siyuan-mcp",
-  "version": "1.0.0",
-  "main": "dist/server.js",
+  "version": "1.0.1",
+  "bin": {
+    "siyuan-mcp": "dist/server.js"
+  },
   "scripts": {
     "build": "bun x tsc -p tsconfig.build.json && chmod +x dist/server.js",
     "start": "bun dist/server.js",
