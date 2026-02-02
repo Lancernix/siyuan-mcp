@@ -73,38 +73,18 @@ bun run build
 bun test test/
 ```
 
-这将运行所有单元测试。
-
-#### 运行构建验证
+#### 运行所有检查
 
 ```bash
-bun run test:verify
+bun run lint
 ```
 
-这将验证：
-- 环境配置（`.env.local`、`package.json`、`tsconfig.json`）
-- 源代码结构（关键文件是否存在）
-- 测试文件是否就位
-- 构建产物是否存在且大小正确
-- TypeScript 编译成功且无错误
-- 已安装必需依赖（@modelcontextprotocol/sdk）
-- 已移除已弃用的依赖（fastmcp）
-
-**示例输出：**
-```
-🔍 SiYuan MCP 构建验证
-
-✅ `.env.local` 配置文件存在
-✅ `package.json` 存在
-✅ `tsconfig.json` 存在
-...
-✅ 所有检查通过！
-```
+这将运行代码检查和 TypeScript 类型检查。
 
 #### 测试覆盖范围
 
-- **类型安全测试** - TypeScript 编译检查确保整个项目的类型安全
-- **构建完整性测试** - 验证构建输出、依赖和配置
+- **类型安全** - TypeScript 编译检查确保项目的类型安全
+- **代码质量** - 使用 Biome 进行代码质量检查
 
 ## GitHub Actions
 
@@ -181,7 +161,6 @@ siyuan-mcp/
 │   ├── client.ts       # 思源 API 客户端
 │   └── utils.ts        # 工具函数
 ├── test/
-│   ├── verify-build.ts      # 构建验证脚本
 │   ├── run-mcp-tests.ts     # MCP 工具测试
 │   └── test-tools.ts        # 测试工具库
 ├── dist/               # 编译输出

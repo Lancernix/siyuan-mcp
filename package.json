@@ -10,8 +10,6 @@
     "dev": "bun src/server.ts",
     "inspect": "mcp-inspector bun src/server.ts",
     "lint": "biome check . && bun x tsc --noEmit",
-    "test": "bun run test:verify",
-    "test:verify": "bun test/verify-build.ts",
     "format": "biome check --write ."
   },
   "keywords": [

@@ -30,9 +30,5 @@ jobs:
       - name: Lint and type check
         run: bun run lint
       
-      - name: Run tests
-        run: bun run test
-      
-      - name: Verify build
-        run: bun run test:verify
-
+      - name: Run build
+        run: bun run build

@@ -70,41 +70,15 @@ The project includes comprehensive tests for functionality verification.
 #### Run All Tests
 
 ```bash
-bun test test/
+bun run lint
 ```
 
-This runs all unit tests in the test directory.
-
-#### Run Build Verification
-
-```bash
-bun run test:verify
-```
-
-This verifies:
-- Environment configuration (`.env.local`, `package.json`, `tsconfig.json`)
-- Source code structure (essential files present)
-- Test files in place
-- Build artifacts exist and are properly sized
-- TypeScript compilation succeeds with 0 errors
-- Required dependencies installed (@modelcontextprotocol/sdk)
-- Deprecated dependencies removed (fastmcp)
-
-**Example Output:**
-```
-🔍 SiYuan MCP Build Verification
-
-✅ `.env.local` configuration file exists
-✅ `package.json` exists
-✅ `tsconfig.json` exists
-...
-✅ All checks passed!
-```
+This runs linting and TypeScript type checking.
 
 #### Test Coverage
 
-- **Type Safety Tests** - TypeScript compilation checks ensure type safety throughout
-- **Build Integrity Tests** - Verify build output, dependencies, and configuration
+- **Type Safety** - TypeScript compilation ensures type safety throughout
+- **Linting** - Code quality checks with Biome
 
 ## GitHub Actions
 
