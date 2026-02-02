@@ -49,9 +49,23 @@ export interface Block {
   updated: string;
 }
 
+// 通用SQL行类型 - 灵活的键值对以满足SQL查询的多样化返回结果
+export interface SqlRow {
+  [key: string]: unknown;
+}
+
+// 块相关的具体类型 - 用于getChildBlocks返回值
+export interface BlockRow extends Block {}
+
+// 块操作返回值 - 至少包含id字段
+export interface BlockOperationResult {
+  id: string;
+  [key: string]: unknown;
+}
+
 export interface SqlResult {
   columns: string[];
-  rows: any[][];
+  rows: SqlRow[];
 }
 
 export interface ExportResult {
@@ -147,36 +161,47 @@ export class SiyuanClient {
     });
   }
 
-  async appendBlock(parentID: string, markdown: string): Promise<any> {
-    return this.request<any>("/api/block/appendBlock", {
+  async appendBlock(
+    parentID: string,
+    markdown: string,
+  ): Promise<BlockOperationResult> {
+    return this.request<BlockOperationResult>("/api/block/appendBlock", {
       parentID,
       data: markdown,
       dataType: "markdown",
     });
   }
 
-  async prependBlock(parentID: string, markdown: string): Promise<any> {
-    return this.request<any>("/api/block/prependBlock", {
+  async prependBlock(
+    parentID: string,
+    markdown: string,
+  ): Promise<BlockOperationResult> {
+    return this.request<BlockOperationResult>("/api/block/prependBlock", {
       parentID,
       data: markdown,
       dataType: "markdown",
     });
   }
 
-  async updateBlock(id: string, markdown: string): Promise<any> {
-    return this.request<any>("/api/block/updateBlock", {
+  async updateBlock(
+    id: string,
+    markdown: string,
+  ): Promise<BlockOperationResult> {
+    return this.request<BlockOperationResult>("/api/block/updateBlock", {
       id,
       data: markdown,
       dataType: "markdown",
     });
   }
 
-  async deleteBlock(id: string): Promise<any> {
-    return this.request<any>("/api/block/deleteBlock", { id });
+  async deleteBlock(id: string): Promise<BlockOperationResult> {
+    return this.request<BlockOperationResult>("/api/block/deleteBlock", {
+      id,
+    });
   }
 
-  async getChildBlocks(id: string): Promise<any[]> {
-    return this.request<any[]>("/api/block/getChildBlocks", { id });
+  async getChildBlocks(id: string): Promise<BlockRow[]> {
+    return this.request<BlockRow[]>("/api/block/getChildBlocks", { id });
   }
 
   async getBlockAttrs(id: string): Promise<Record<string, string>> {
@@ -192,8 +217,8 @@ export class SiyuanClient {
     await this.request<void>("/api/attr/setBlockAttrs", { id, attrs });
   }
 
-  async querySql(sql: string): Promise<any[]> {
-    return this.request<any[]>("/api/query/sql", { stmt: sql });
+  async querySql(sql: string): Promise<SqlRow[]> {
+    return this.request<SqlRow[]>("/api/query/sql", { stmt: sql });
   }
 }
 
@@ -210,13 +235,11 @@ export function getClient(): SiyuanClient {
       );
     }
 
-    clientInstance = new SiyuanClient({ apiUrl, apiToken });
+    clientInstance = new SiyuanClient({
+      apiUrl,
+      apiToken,
+    });
   }
 
-  return clientInstance;
-}
-
-export function initClient(config: SiyuanConfig): SiyuanClient {
-  clientInstance = new SiyuanClient(config);
   return clientInstance;
 }

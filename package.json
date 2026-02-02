@@ -1,31 +1,37 @@
 {
-  "name": "fastmcp-boilerplate",
-  "version": "1.0.0",
-  "main": "dist/index.js",
+  "name": "@lancernix/siyuan-mcp",
+  "version": "1.0.1",
+  "bin": {
+    "siyuan-mcp": "dist/server.js"
+  },
   "scripts": {
-    "build": "bun build ./src/server.ts --outdir ./dist --target node --minify --external sury --external effect --external @valibot/to-json-schema --external arktype --external valibot",
-    "start": "bun src/server.ts",
-    "dev": "bun x fastmcp dev src/server.ts",
+    "build": "bun x tsc -p tsconfig.build.json && chmod +x dist/server.js",
+    "start": "bun dist/server.js",
+    "dev": "bun src/server.ts",
     "inspect": "mcp-inspector bun src/server.ts",
-    "lint": "biome check . && tsc --noEmit",
-    "test": "bun test",
+    "lint": "biome check . && bun x tsc --noEmit",
     "format": "biome check --write ."
   },
   "keywords": [
-    "fastmcp",
     "mcp",
-    "boilerplate"
+    "siyuan",
+    "ai"
   ],
   "repository": {
-    "url": "https://github.com/punkpeye/fastmcp-boilerplate"
+    "url": "git+https://github.com/lancernix/siyuan-mcp.git"
   },
-  "author": "Frank Fiegel <frank@glama.ai>",
-  "homepage": "https://glama.ai/mcp",
+  "author": "",
+  "homepage": "",
   "type": "module",
   "license": "MIT",
-  "description": "A boilerplate for FastMCP",
+  "description": "MCP server for SiYuan Note",
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh.md"
+  ],
   "dependencies": {
-    "fastmcp": "^3.31.0",
+    "@modelcontextprotocol/sdk": "^1.25.3",
     "zod": "^4.3.6"
   },
   "release": {
@@ -45,5 +51,8 @@
     "@types/node": "^25.1.0",
     "bun-types": "^1.3.8",
     "typescript": "^5.8.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

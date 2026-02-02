@@ -1,4 +1,4 @@
-name: Run Tests
+name: PR Checks
 on:
   pull_request:
     branches:
@@ -8,27 +8,24 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+
 jobs:
-  test:
+  quality:
     runs-on: ubuntu-latest
-    name: Test
-    strategy:
-      fail-fast: true
-      matrix:
-        node:
-          - 22
+    name: Code Quality
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup NodeJS ${{ matrix.node }}
-        uses: actions/setup-node@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: ${{ matrix.node }}
+          bun-version: latest
+      
       - name: Install dependencies
-        run: npm install
-      - name: Run lint
-        run: npm run lint
-      - name: Run tests
-        run: npm run test
+        run: bun install
+      
+      - name: Lint and type check
+        run: bun run lint
