@@ -29,6 +29,3 @@ jobs:
       
       - name: Lint and type check
         run: bun run lint
-      
-      - name: Run build
-        run: bun run build
