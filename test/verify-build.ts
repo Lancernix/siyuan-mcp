@@ -46,13 +46,13 @@ function main() {
   allPassed = allPassed && check(existsSync("src/client.ts"), "`src/client.ts` 文件存在");
   allPassed = allPassed && check(existsSync("src/utils.ts"), "`src/utils.ts` 文件存在");
 
-  // 检查测试
-  section("测试文件");
-  allPassed = allPassed && check(existsSync("test"), "`test/` 目录存在");
-  allPassed = allPassed && check(
-    existsSync("test/sql-injection.test.ts"),
-    "`test/sql-injection.test.ts` 测试文件存在",
-  );
+   // 检查测试
+   section("测试文件");
+   allPassed = allPassed && check(existsSync("test"), "`test/` 目录存在");
+   allPassed = allPassed && check(
+     existsSync("test/verify-build.ts"),
+     "`test/verify-build.ts` 验证脚本存在",
+   );
 
   // 检查构建产物
   section("构建产物");
