@@ -44,6 +44,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Publish to NPM
-        run: npm publish --provenance
-        env:
-          NPM_CONFIG_PROVENANCE: true
+        run: npm publish
