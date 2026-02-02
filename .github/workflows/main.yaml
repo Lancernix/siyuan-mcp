@@ -46,4 +46,4 @@ jobs:
       - name: Publish to NPM
         run: npm publish --provenance
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
