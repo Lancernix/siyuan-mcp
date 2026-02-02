@@ -3,42 +3,42 @@ on:
   push:
     branches:
       - main
+
 jobs:
-  test:
+  release:
     environment: release
-    name: Test
-    strategy:
-      fail-fast: true
-      matrix:
-        node:
-          - 22
+    name: Test & Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
     steps:
-      - name: setup repository
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: setup node.js
-        uses: actions/setup-node@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: ${{ matrix.node }}
-      - name: Setup NodeJS ${{ matrix.node }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
+          bun-version: latest
+      
       - name: Install dependencies
-        run: npm install
-      - name: Run lint
-        run: npm run lint
+        run: bun install
+      
+      - name: Lint and type check
+        run: bun run lint
+      
       - name: Run tests
-        run: npm run test
+        run: bun run test
+      
       - name: Build
-        run: npm run build
+        run: bun run build
+      
+      - name: Verify build
+        run: bun run test:verify
+      
       - name: Release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
