@@ -18,7 +18,8 @@
     "ai"
   ],
   "repository": {
-    "url": "https://github.com/lancernix/siyuan-mcp.git"
+    "type": "git",
+    "url": "https://github.com/Lancernix/siyuan-mcp.git"
   },
   "author": "",
   "homepage": "",
