@@ -2,18 +2,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as z from "zod";
-import { getClient } from "./client";
+import { getClient } from "./client.js";
 import {
   getString,
   getStringOrDefault,
   parseHPath,
   stripMetadata,
   stripMetadataAndH1,
-} from "./utils";
+} from "./utils.js";
 
 const mcpServer = new McpServer({
   name: "SiYuan Note",
-  version: "1.3.0",
+  version: "1.0.2",
 });
 
 mcpServer.registerTool(
