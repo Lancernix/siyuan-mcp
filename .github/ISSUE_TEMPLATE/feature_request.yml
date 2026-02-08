@@ -1,0 +1,43 @@
+name: ✨ 功能请求
+description: 提议一个新功能或改进
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你的功能建议！请详细描述你的想法。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述
+      description: 这个功能要解决什么问题？你遇到了什么不便？
+      placeholder: 我在使用 xxx 功能时，希望能够 xxx，但目前无法实现...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 建议的解决方案
+      description: 你期望的功能是什么样的？
+      placeholder: |
+        我希望能够添加一个新工具 `xxx`，它可以：
+        - 功能 1
+        - 功能 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案
+      description: 你考虑过其他的实现方式或临时解决方法吗？
+      placeholder: 目前我使用 xxx 方式来临时解决，但不够优雅...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 补充信息
+      description: 其他可能有用的信息、截图、参考项目或相关链接

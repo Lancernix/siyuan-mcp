@@ -29,3 +29,14 @@ jobs:
       
       - name: Lint and type check
         run: bun run lint
+      
+      - name: Build verification
+        run: bun run build
+      
+      - name: Check build artifacts
+        run: |
+          if [ ! -f "dist/server.js" ]; then
+            echo "❌ Build failed: dist/server.js not found"
+            exit 1
+          fi
+          echo "✅ Build artifacts verified"

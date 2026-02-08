@@ -82,12 +82,32 @@ This runs linting and TypeScript type checking.
 
 ## GitHub Actions
 
-This repository has a GitHub Actions workflow that runs linting and publishes package updates to NPM using [semantic-release](https://semantic-release.gitbook.io/semantic-release/).
+This repository uses GitHub Actions for a complete CI/CD workflow:
 
-To enable publishing, set up:
+### PR Checks (feature.yaml)
 
-1. Add `NPM_TOKEN` to the repository secrets
-2. Grant write access to the workflow (Settings → Actions → General → Workflow permissions → "Read and write permissions")
+When you create a Pull Request, it automatically runs:
+- ✅ Code linting (Biome)
+- ✅ TypeScript type checking
+- ✅ Build verification
+
+### Release Process (main.yaml)
+
+When merged into the `main` branch, it triggers:
+- 📦 Automated versioning with [semantic-release](https://semantic-release.gitbook.io/)
+- 🏷️ Automatic generation of version numbers and Release Notes based on commits
+- 📤 Publishing to NPM (using OIDC Trusted Publishing, no manual token required)
+- ✨ Automatic generation of Provenance proof (software supply chain security)
+
+### Commit Message Convention
+
+Please follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+- `feat: xxx` - New feature (triggers minor version update)
+- `fix: xxx` - Bug fix (triggers patch version update)
+- `feat!: xxx` or `BREAKING CHANGE:` - Breaking change (triggers major version update)
+- `docs: xxx`, `chore: xxx`, etc. - Maintenance (no release)
+
+Detailed contribution guidelines can be found in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Tools
 

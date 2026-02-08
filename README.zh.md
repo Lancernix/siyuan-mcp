@@ -88,12 +88,32 @@ bun run lint
 
 ## GitHub Actions
 
-此仓库有一个 GitHub Actions 工作流，它运行代码检查并使用 [semantic-release](https://semantic-release.gitbook.io/semantic-release/) 将包更新发布到 NPM。
+本项目使用 GitHub Actions 实现完整的 CI/CD 流程：
 
-要启用发布，请进行以下设置：
+### PR 检查流程 (feature.yaml)
 
-1. 在仓库机密中添加 `NPM_TOKEN`
-2. 授予工作流写入权限（设置 → Actions → General → Workflow permissions → "Read and write permissions"）
+当你创建 Pull Request 时，会自动运行：
+- ✅ 代码格式检查 (Biome)
+- ✅ TypeScript 类型检查
+- ✅ 构建验证
+
+### 发布流程 (main.yaml)
+
+合并到 `main` 分支后自动触发：
+- 📦 使用 [semantic-release](https://semantic-release.gitbook.io/) 自动版本管理
+- 🏷️ 根据 commit message 自动生成版本号和 Release Notes
+- 📤 发布到 NPM（使用 OIDC Trusted Publishing，无需手动配置 Token）
+- ✨ 自动生成 Provenance 证明（软件供应链安全）
+
+### Commit Message 规范
+
+请遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+- `feat: xxx` - 新功能 (触发 minor 版本更新)
+- `fix: xxx` - Bug 修复 (触发 patch 版本更新)
+- `feat!: xxx` 或 `BREAKING CHANGE:` - 不兼容变更 (触发 major 版本更新)
+- `docs: xxx`, `chore: xxx` 等 - 维护性工作 (不触发发布)
+
+详细的贡献指南请参考 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ## 工具
 

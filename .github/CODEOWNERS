@@ -1,0 +1,9 @@
+# Default code owners
+* @Lancernix
+
+# Review GitHub Actions configurations carefully
+/.github/ @Lancernix
+
+# Release-related files need special attention
+/package.json @Lancernix
+/package-lock.json @Lancernix

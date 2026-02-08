@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 问题讨论
+    url: https://github.com/Lancernix/siyuan-mcp/discussions
+    about: 如果你有使用问题、想法交流或一般性咨询，请使用 Discussions
+  - name: 📖 文档
+    url: https://github.com/Lancernix/siyuan-mcp#readme
+    about: 查看项目文档和使用说明
