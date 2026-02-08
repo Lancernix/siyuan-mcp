@@ -1,0 +1,67 @@
+name: 🐛 Bug 报告
+description: 报告一个问题或错误
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你花时间填写这个 Bug 报告！请提供尽可能详细的信息以帮助我们定位和修复问题。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 清晰、简洁地描述这个 Bug
+      placeholder: 当我执行 xxx 操作时，发生了 xxx 错误...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+      description: 你期望发生什么？
+      placeholder: 我期望系统应该...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 如何复现这个问题？
+      placeholder: |
+        1. 执行命令 '...'
+        2. 调用工具 '...'
+        3. 看到错误 '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 请提供你的环境信息
+      value: |
+        - OS: [例如 macOS 14.0, Windows 11, Ubuntu 22.04]
+        - Node.js 版本: [例如 20.11.0]
+        - Bun 版本: [例如 1.0.0]
+        - 包版本: [例如 1.0.2]
+        - 思源笔记版本: [例如 2.12.0]
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 错误日志
+      description: 请粘贴相关的错误日志或输出
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 补充信息
+      description: 其他可能有助于解决问题的信息、截图或参考链接
