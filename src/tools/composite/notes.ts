@@ -57,47 +57,6 @@ export function registerCompositeNoteTools(server: McpServer) {
       };
     }
   );
-
-  server.tool(
-    "move_to_inbox",
-    "将内容归档到收件箱 / Archive content to Inbox",
-    { content: z.string().describe("Markdown 内容 / Markdown content") },
-    async ({ content }: { content: string }) => {
-      const client = getClient();
-      const notebooks = await client.listNotebooks();
-      const openNotebooks = notebooks.filter((n) => !n.closed);
-
-      let inboxNbId = "";
-      let inboxPath = "/Inbox";
-
-      // Try finding an Inbox notebook
-      const inboxNb = notebooks.find(n => n.name.toLowerCase() === "inbox");
-      if (inboxNb) {
-        inboxNbId = inboxNb.id;
-        inboxPath = "/";
-      } else {
-        // Try finding an Inbox document/folder
-        const folders = await client.querySql(
-          "SELECT box, hpath FROM blocks WHERE type = 'd' AND content LIKE 'Inbox' LIMIT 1"
-        );
-        if (folders.length > 0) {
-          inboxNbId = folders[0].box as string;
-          inboxPath = folders[0].hpath as string;
-        } else {
-          inboxNbId = openNotebooks[0]?.id;
-        }
-      }
-
-      if (!inboxNbId) throw new Error("No open notebooks found.");
-
-      const title = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-      if (!inboxPath.endsWith("/")) inboxPath += "/";
-      const finalPath = inboxPath + title;
-
-      const docId = await client.createDocWithMd(inboxNbId, finalPath, content);
-      return { content: [{ type: "text", text: `✅ Archived to Inbox!\nID: ${docId}\nPath: ${finalPath}` }] };
-    }
-  );
   
   server.tool(
     "upsert_note_content",
