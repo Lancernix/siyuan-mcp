@@ -9,7 +9,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean && chmod +x dist/server.js",
+    "build": "tsup src/server.ts --format esm --dts --clean && chmod +x dist/server.js",
     "start": "node dist/server.js",
     "start:bun": "bun dist/server.js",
     "dev": "node --loader ts-node/esm src/server.ts",
