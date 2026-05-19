@@ -50,14 +50,14 @@ export interface Block {
 }
 
 export interface SqlRow {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface BlockRow extends Block {}
 
 export interface BlockOperationResult {
   id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface ExportResult {

@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
@@ -12,7 +12,7 @@ export function registerFileTools(server: McpServer) {
       const response = await client.getFile(path);
       const text = await response.text();
       return { content: [{ type: "text", text }] };
-    }
+    },
   );
 
   server.tool(
@@ -23,7 +23,7 @@ export function registerFileTools(server: McpServer) {
       const client = getClient();
       await client.removeFile(path);
       return { content: [{ type: "text", text: `File ${path} removed` }] };
-    }
+    },
   );
 
   server.tool(
@@ -33,8 +33,10 @@ export function registerFileTools(server: McpServer) {
     async ({ path }: { path: string }) => {
       const client = getClient();
       const result = await client.readDir(path);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    },
   );
 
   server.tool(
@@ -47,8 +49,12 @@ export function registerFileTools(server: McpServer) {
     async ({ path, newPath }: { path: string; newPath: string }) => {
       const client = getClient();
       await client.renameFile(path, newPath);
-      return { content: [{ type: "text", text: `File renamed from ${path} to ${newPath}` }] };
-    }
+      return {
+        content: [
+          { type: "text", text: `File renamed from ${path} to ${newPath}` },
+        ],
+      };
+    },
   );
 }
 
@@ -60,8 +66,10 @@ export function registerSystemTools(server: McpServer) {
     async () => {
       const client = getClient();
       const status = await client.systemStatus();
-      return { content: [{ type: "text", text: JSON.stringify(status, null, 2) }] };
-    }
+      return {
+        content: [{ type: "text", text: JSON.stringify(status, null, 2) }],
+      };
+    },
   );
 
   server.tool(
@@ -72,7 +80,7 @@ export function registerSystemTools(server: McpServer) {
       const client = getClient();
       const version = await client.version();
       return { content: [{ type: "text", text: version }] };
-    }
+    },
   );
 
   server.tool(
@@ -82,7 +90,9 @@ export function registerSystemTools(server: McpServer) {
     async () => {
       const client = getClient();
       const info = await client.workspaceInfo();
-      return { content: [{ type: "text", text: JSON.stringify(info, null, 2) }] };
-    }
+      return {
+        content: [{ type: "text", text: JSON.stringify(info, null, 2) }],
+      };
+    },
   );
 }

@@ -1,10 +1,10 @@
-import {
-  Notebook,
-  BlockRow,
+import type {
   BlockOperationResult,
-  SqlRow,
+  BlockRow,
   ExportResult,
-  SiyuanConfig
+  Notebook,
+  SiyuanConfig,
+  SqlRow,
 } from "./types.js";
 
 export class SiyuanClient {
@@ -16,7 +16,7 @@ export class SiyuanClient {
 
   private async request<T>(
     path: string,
-    params: Record<string, unknown> = {}
+    params: Record<string, unknown> = {},
   ): Promise<T> {
     const response = await fetch(`${this.config.apiUrl}${path}`, {
       method: "POST",
@@ -29,7 +29,7 @@ export class SiyuanClient {
 
     if (!response.ok) {
       throw new Error(
-        `SiYuan HTTP Error: ${response.status} ${response.statusText}`
+        `SiYuan HTTP Error: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -49,7 +49,7 @@ export class SiyuanClient {
   // --- Notebook APIs ---
   async listNotebooks(): Promise<Notebook[]> {
     const result = await this.request<{ notebooks: Notebook[] }>(
-      "/api/notebook/lsNotebooks"
+      "/api/notebook/lsNotebooks",
     );
     return result.notebooks;
   }
@@ -80,11 +80,11 @@ export class SiyuanClient {
     await this.request("/api/notebook/removeNotebook", { notebook });
   }
 
-  async getNotebookConf(notebook: string): Promise<any> {
+  async getNotebookConf(notebook: string): Promise<unknown> {
     return this.request("/api/notebook/getNotebookConf", { notebook });
   }
 
-  async setNotebookConf(notebook: string, conf: any): Promise<void> {
+  async setNotebookConf(notebook: string, conf: unknown): Promise<void> {
     await this.request("/api/notebook/setNotebookConf", { notebook, conf });
   }
 
@@ -92,7 +92,7 @@ export class SiyuanClient {
   async createDocWithMd(
     notebook: string,
     path: string,
-    markdown: string
+    markdown: string,
   ): Promise<string> {
     return this.request<string>("/api/filetree/createDocWithMd", {
       notebook,
@@ -101,7 +101,11 @@ export class SiyuanClient {
     });
   }
 
-  async renameDoc(notebook: string, path: string, title: string): Promise<void> {
+  async renameDoc(
+    notebook: string,
+    path: string,
+    title: string,
+  ): Promise<void> {
     await this.request("/api/filetree/renameDoc", { notebook, path, title });
   }
 
@@ -109,12 +113,23 @@ export class SiyuanClient {
     await this.request("/api/filetree/removeDoc", { notebook, path });
   }
 
-  async moveDocs(fromPaths: string[], toNotebook: string, toPath: string): Promise<void> {
-    await this.request("/api/filetree/moveDocs", { fromPaths, toNotebook, toPath });
+  async moveDocs(
+    fromPaths: string[],
+    toNotebook: string,
+    toPath: string,
+  ): Promise<void> {
+    await this.request("/api/filetree/moveDocs", {
+      fromPaths,
+      toNotebook,
+      toPath,
+    });
   }
 
   async getHPathByPath(notebook: string, path: string): Promise<string> {
-    return this.request<string>("/api/filetree/getHPathByPath", { notebook, path });
+    return this.request<string>("/api/filetree/getHPathByPath", {
+      notebook,
+      path,
+    });
   }
 
   async getHPathByID(id: string): Promise<string> {
@@ -122,7 +137,10 @@ export class SiyuanClient {
   }
 
   async getIDsByHPath(path: string, notebook: string): Promise<string[]> {
-    return this.request<string[]>("/api/filetree/getIDsByHPath", { path, notebook });
+    return this.request<string[]>("/api/filetree/getIDsByHPath", {
+      path,
+      notebook,
+    });
   }
 
   async getPathByID(id: string): Promise<string> {
@@ -135,7 +153,7 @@ export class SiyuanClient {
     dataType: "markdown" | "dom" = "markdown",
     nextID?: string,
     previousID?: string,
-    parentID?: string
+    parentID?: string,
   ): Promise<BlockOperationResult[]> {
     return this.request<BlockOperationResult[]>("/api/block/insertBlock", {
       data,
@@ -149,7 +167,7 @@ export class SiyuanClient {
   async prependBlock(
     parentID: string,
     data: string,
-    dataType: "markdown" | "dom" = "markdown"
+    dataType: "markdown" | "dom" = "markdown",
   ): Promise<BlockOperationResult[]> {
     return this.request<BlockOperationResult[]>("/api/block/prependBlock", {
       parentID,
@@ -161,7 +179,7 @@ export class SiyuanClient {
   async appendBlock(
     parentID: string,
     data: string,
-    dataType: "markdown" | "dom" = "markdown"
+    dataType: "markdown" | "dom" = "markdown",
   ): Promise<BlockOperationResult[]> {
     return this.request<BlockOperationResult[]>("/api/block/appendBlock", {
       parentID,
@@ -173,7 +191,7 @@ export class SiyuanClient {
   async updateBlock(
     id: string,
     data: string,
-    dataType: "markdown" | "dom" = "markdown"
+    dataType: "markdown" | "dom" = "markdown",
   ): Promise<BlockOperationResult[]> {
     return this.request<BlockOperationResult[]>("/api/block/updateBlock", {
       id,
@@ -189,7 +207,7 @@ export class SiyuanClient {
   async moveBlock(
     id: string,
     previousID?: string,
-    parentID?: string
+    parentID?: string,
   ): Promise<BlockOperationResult[]> {
     return this.request<BlockOperationResult[]>("/api/block/moveBlock", {
       id,
@@ -198,8 +216,13 @@ export class SiyuanClient {
     });
   }
 
-  async getBlockKramdown(id: string): Promise<{ id: string; kramdown: string }> {
-    return this.request<{ id: string; kramdown: string }>("/api/block/getBlockKramdown", { id });
+  async getBlockKramdown(
+    id: string,
+  ): Promise<{ id: string; kramdown: string }> {
+    return this.request<{ id: string; kramdown: string }>(
+      "/api/block/getBlockKramdown",
+      { id },
+    );
   }
 
   async getChildBlocks(id: string): Promise<BlockRow[]> {
@@ -214,16 +237,25 @@ export class SiyuanClient {
     await this.request("/api/block/unfoldBlock", { id });
   }
 
-  async transferBlockRef(fromID: string, toID: string, refIDs?: string[]): Promise<void> {
+  async transferBlockRef(
+    fromID: string,
+    toID: string,
+    refIDs?: string[],
+  ): Promise<void> {
     await this.request("/api/block/transferBlockRef", { fromID, toID, refIDs });
   }
 
   // --- Attribute APIs ---
   async getBlockAttrs(id: string): Promise<Record<string, string>> {
-    return this.request<Record<string, string>>("/api/attr/getBlockAttrs", { id });
+    return this.request<Record<string, string>>("/api/attr/getBlockAttrs", {
+      id,
+    });
   }
 
-  async setBlockAttrs(id: string, attrs: Record<string, any>): Promise<void> {
+  async setBlockAttrs(
+    id: string,
+    attrs: Record<string, unknown>,
+  ): Promise<void> {
     await this.request<void>("/api/attr/setBlockAttrs", { id, attrs });
   }
 
@@ -254,7 +286,11 @@ export class SiyuanClient {
     return response;
   }
 
-  async putFile(path: string, file: Blob | string, isDir = false): Promise<void> {
+  async putFile(
+    path: string,
+    file: Blob | string,
+    isDir = false,
+  ): Promise<void> {
     const formData = new FormData();
     formData.append("path", path);
     formData.append("file", file);
@@ -268,7 +304,11 @@ export class SiyuanClient {
       body: formData,
     });
 
-    const result: any = await response.json();
+    const result = (await response.json()) as {
+      code: number;
+      msg: string;
+      [key: string]: unknown;
+    };
     if (result.code !== 0) {
       throw new Error(`SiYuan API Error [${result.code}]: ${result.msg}`);
     }
@@ -278,7 +318,7 @@ export class SiyuanClient {
     await this.request("/api/file/removeFile", { path });
   }
 
-  async readDir(path: string): Promise<any> {
+  async readDir(path: string): Promise<unknown> {
     return this.request("/api/file/readDir", { path });
   }
 
@@ -287,22 +327,29 @@ export class SiyuanClient {
   }
 
   // --- Asset APIs ---
-  async uploadAsset(assetsDirPath: string, files: any[]): Promise<any> {
+  async uploadAsset(assetsDirPath: string, files: unknown[]): Promise<unknown> {
     const formData = new FormData();
     formData.append("assetsDirPath", assetsDirPath);
     for (const file of files) {
-      formData.append("file[]", file);
+      formData.append("file[]", file as Blob);
     }
 
-    const response = await fetch(`${this.config.apiUrl}/api/asset/uploadAsset`, {
-      method: "POST",
-      headers: {
-        Authorization: `Token ${this.config.apiToken}`,
+    const response = await fetch(
+      `${this.config.apiUrl}/api/asset/uploadAsset`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${this.config.apiToken}`,
+        },
+        body: formData,
       },
-      body: formData,
-    });
+    );
 
-    const result: any = await response.json();
+    const result = (await response.json()) as {
+      code: number;
+      msg: string;
+      data: unknown;
+    };
     if (result.code !== 0) {
       throw new Error(`SiYuan API Error [${result.code}]: ${result.msg}`);
     }
@@ -310,7 +357,7 @@ export class SiyuanClient {
   }
 
   // --- System APIs ---
-  async systemStatus(): Promise<any> {
+  async systemStatus(): Promise<unknown> {
     return this.request("/api/system/status");
   }
 
@@ -322,7 +369,7 @@ export class SiyuanClient {
     return this.request<number>("/api/system/currentTime");
   }
 
-  async workspaceInfo(): Promise<any> {
+  async workspaceInfo(): Promise<unknown> {
     return this.request("/api/system/getWorkspaces");
   }
 }
@@ -335,9 +382,7 @@ export function getClient(): SiyuanClient {
     const apiToken = process.env.SIYUAN_API_TOKEN;
 
     if (!apiToken) {
-      throw new Error(
-        "SIYUAN_API_TOKEN environment variable is not set."
-      );
+      throw new Error("SIYUAN_API_TOKEN environment variable is not set.");
     }
 
     clientInstance = new SiyuanClient({ apiUrl, apiToken });

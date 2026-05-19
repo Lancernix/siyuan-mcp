@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { getClient } from "../client/index.js";
 
 export function registerResources(server: McpServer) {
@@ -17,6 +17,6 @@ export function registerResources(server: McpServer) {
           },
         ],
       };
-    }
+    },
   );
 }

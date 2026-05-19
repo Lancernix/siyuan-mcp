@@ -2,7 +2,7 @@ export function parseHPath(fullPath: string) {
   const parts = fullPath.split("/").filter((p) => p !== "");
   if (parts.length === 0) return { notebookName: "", hpath: "/" };
   const notebookName = parts[0];
-  const hpath = "/" + parts.slice(1).join("/");
+  const hpath = `/${parts.slice(1).join("/")}`;
   return { notebookName, hpath };
 }
 

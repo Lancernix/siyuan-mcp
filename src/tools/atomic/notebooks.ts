@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
@@ -13,7 +13,7 @@ export function registerNotebookTools(server: McpServer) {
       return {
         content: [{ type: "text", text: JSON.stringify(notebooks, null, 2) }],
       };
-    }
+    },
   );
 
   server.tool(
@@ -23,8 +23,10 @@ export function registerNotebookTools(server: McpServer) {
     async ({ notebook }) => {
       const client = getClient();
       await client.openNotebook(notebook);
-      return { content: [{ type: "text", text: `Notebook ${notebook} opened` }] };
-    }
+      return {
+        content: [{ type: "text", text: `Notebook ${notebook} opened` }],
+      };
+    },
   );
 
   server.tool(
@@ -34,8 +36,10 @@ export function registerNotebookTools(server: McpServer) {
     async ({ notebook }) => {
       const client = getClient();
       await client.closeNotebook(notebook);
-      return { content: [{ type: "text", text: `Notebook ${notebook} closed` }] };
-    }
+      return {
+        content: [{ type: "text", text: `Notebook ${notebook} closed` }],
+      };
+    },
   );
 
   server.tool(
@@ -48,8 +52,12 @@ export function registerNotebookTools(server: McpServer) {
     async ({ notebook, name }) => {
       const client = getClient();
       await client.renameNotebook(notebook, name);
-      return { content: [{ type: "text", text: `Notebook ${notebook} renamed to ${name}` }] };
-    }
+      return {
+        content: [
+          { type: "text", text: `Notebook ${notebook} renamed to ${name}` },
+        ],
+      };
+    },
   );
 
   server.tool(
@@ -60,7 +68,7 @@ export function registerNotebookTools(server: McpServer) {
       const client = getClient();
       const nb = await client.createNotebook(name);
       return { content: [{ type: "text", text: JSON.stringify(nb, null, 2) }] };
-    }
+    },
   );
 
   server.tool(
@@ -70,8 +78,10 @@ export function registerNotebookTools(server: McpServer) {
     async ({ notebook }) => {
       const client = getClient();
       await client.removeNotebook(notebook);
-      return { content: [{ type: "text", text: `Notebook ${notebook} removed` }] };
-    }
+      return {
+        content: [{ type: "text", text: `Notebook ${notebook} removed` }],
+      };
+    },
   );
 
   server.tool(
@@ -81,8 +91,10 @@ export function registerNotebookTools(server: McpServer) {
     async ({ notebook }) => {
       const client = getClient();
       const conf = await client.getNotebookConf(notebook);
-      return { content: [{ type: "text", text: JSON.stringify(conf, null, 2) }] };
-    }
+      return {
+        content: [{ type: "text", text: JSON.stringify(conf, null, 2) }],
+      };
+    },
   );
 
   server.tool(
@@ -95,7 +107,11 @@ export function registerNotebookTools(server: McpServer) {
     async ({ notebook, conf }) => {
       const client = getClient();
       await client.setNotebookConf(notebook, conf);
-      return { content: [{ type: "text", text: `Configuration for ${notebook} updated` }] };
-    }
+      return {
+        content: [
+          { type: "text", text: `Configuration for ${notebook} updated` },
+        ],
+      };
+    },
   );
 }

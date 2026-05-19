@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { getClient } from "../../client/index.js";
 import { parseHPath, stripMetadataAndH1 } from "../../utils/index.js";
@@ -13,7 +13,17 @@ export function registerCompositeNoteTools(server: McpServer) {
       title: z.string().optional().describe("标题 / Title"),
       content: z.string().describe("Markdown 内容 / Markdown content"),
     },
-    async ({ notebook, folder, title, content }: { notebook?: string; folder?: string; title?: string; content: string }) => {
+    async ({
+      notebook,
+      folder,
+      title,
+      content,
+    }: {
+      notebook?: string;
+      folder?: string;
+      title?: string;
+      content: string;
+    }) => {
       const client = getClient();
       let targetNbId = "";
       let targetHPath = "";
@@ -29,7 +39,7 @@ export function registerCompositeNoteTools(server: McpServer) {
       if (folder) {
         const escapedFolder = folder.replace(/'/g, "''");
         const folders = await client.querySql(
-          `SELECT box, hpath FROM blocks WHERE type = 'd' AND content LIKE '%${escapedFolder}%' ORDER BY updated DESC LIMIT 1`
+          `SELECT box, hpath FROM blocks WHERE type = 'd' AND content LIKE '%${escapedFolder}%' ORDER BY updated DESC LIMIT 1`,
         );
         if (folders.length > 0) {
           targetNbId = targetNbId || (folders[0].box as string);
@@ -47,26 +57,47 @@ export function registerCompositeNoteTools(server: McpServer) {
         throw new Error("No target notebook found or specified.");
       }
 
-      const noteTitle = title || new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const noteTitle =
+        title || new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
       if (!targetHPath.endsWith("/")) targetHPath += "/";
       targetHPath += noteTitle;
 
-      const docId = await client.createDocWithMd(targetNbId, targetHPath, content);
+      const docId = await client.createDocWithMd(
+        targetNbId,
+        targetHPath,
+        content,
+      );
       return {
-        content: [{ type: "text", text: `✅ Note created!\nID: ${docId}\nPath: ${targetHPath}` }],
+        content: [
+          {
+            type: "text",
+            text: `✅ Note created!\nID: ${docId}\nPath: ${targetHPath}`,
+          },
+        ],
       };
-    }
+    },
   );
-  
+
   server.tool(
     "upsert_note_content",
     "更新或创建笔记内容 / Update or create note content",
     {
       id: z.string().optional().describe("文档 ID / Document ID"),
-      path: z.string().optional().describe("人类可读路径 / Human-readable path"),
+      path: z
+        .string()
+        .optional()
+        .describe("人类可读路径 / Human-readable path"),
       content: z.string().describe("Markdown 内容 / Markdown content"),
     },
-    async ({ id, path, content }: { id?: string; path?: string; content: string }) => {
+    async ({
+      id,
+      path,
+      content,
+    }: {
+      id?: string;
+      path?: string;
+      content: string;
+    }) => {
       const client = getClient();
       let targetId = id;
 
@@ -90,7 +121,9 @@ export function registerCompositeNoteTools(server: McpServer) {
       }
       await client.appendBlock(targetId, cleaned);
 
-      return { content: [{ type: "text", text: "✅ Document content updated." }] };
-    }
+      return {
+        content: [{ type: "text", text: "✅ Document content updated." }],
+      };
+    },
   );
 }

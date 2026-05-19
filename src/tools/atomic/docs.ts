@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
@@ -8,14 +8,26 @@ export function registerDocTools(server: McpServer) {
     "在指定笔记本中新建文档 / Create a document in a notebook",
     {
       notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      path: z.string().describe("文档路径 / Document path (e.g., /daily/2024-03-20)"),
+      path: z
+        .string()
+        .describe("文档路径 / Document path (e.g., /daily/2024-03-20)"),
       markdown: z.string().describe("Markdown 内容 / Markdown content"),
     },
-    async ({ notebook, path, markdown }: { notebook: string; path: string; markdown: string }) => {
+    async ({
+      notebook,
+      path,
+      markdown,
+    }: {
+      notebook: string;
+      path: string;
+      markdown: string;
+    }) => {
       const client = getClient();
       const id = await client.createDocWithMd(notebook, path, markdown);
-      return { content: [{ type: "text", text: `Document created with ID: ${id}` }] };
-    }
+      return {
+        content: [{ type: "text", text: `Document created with ID: ${id}` }],
+      };
+    },
   );
 
   server.tool(
@@ -26,11 +38,23 @@ export function registerDocTools(server: McpServer) {
       path: z.string().describe("文档路径 / Document path"),
       title: z.string().describe("新标题 / New title"),
     },
-    async ({ notebook, path, title }: { notebook: string; path: string; title: string }) => {
+    async ({
+      notebook,
+      path,
+      title,
+    }: {
+      notebook: string;
+      path: string;
+      title: string;
+    }) => {
       const client = getClient();
       await client.renameDoc(notebook, path, title);
-      return { content: [{ type: "text", text: `Document at ${path} renamed to ${title}` }] };
-    }
+      return {
+        content: [
+          { type: "text", text: `Document at ${path} renamed to ${title}` },
+        ],
+      };
+    },
   );
 
   server.tool(
@@ -43,23 +67,37 @@ export function registerDocTools(server: McpServer) {
     async ({ notebook, path }: { notebook: string; path: string }) => {
       const client = getClient();
       await client.removeDoc(notebook, path);
-      return { content: [{ type: "text", text: `Document at ${path} removed` }] };
-    }
+      return {
+        content: [{ type: "text", text: `Document at ${path} removed` }],
+      };
+    },
   );
 
   server.tool(
     "move_docs",
     "移动文档 / Move documents",
     {
-      fromPaths: z.array(z.string()).describe("源路径列表 / List of source paths"),
+      fromPaths: z
+        .array(z.string())
+        .describe("源路径列表 / List of source paths"),
       toNotebook: z.string().describe("目标笔记本 ID / Target notebook ID"),
       toPath: z.string().describe("目标路径 / Target path"),
     },
-    async ({ fromPaths, toNotebook, toPath }: { fromPaths: string[]; toNotebook: string; toPath: string }) => {
+    async ({
+      fromPaths,
+      toNotebook,
+      toPath,
+    }: {
+      fromPaths: string[];
+      toNotebook: string;
+      toPath: string;
+    }) => {
       const client = getClient();
       await client.moveDocs(fromPaths, toNotebook, toPath);
-      return { content: [{ type: "text", text: `Documents moved to ${toPath}` }] };
-    }
+      return {
+        content: [{ type: "text", text: `Documents moved to ${toPath}` }],
+      };
+    },
   );
 
   server.tool(
@@ -73,7 +111,7 @@ export function registerDocTools(server: McpServer) {
       const client = getClient();
       const hpath = await client.getHPathByPath(notebook, path);
       return { content: [{ type: "text", text: hpath }] };
-    }
+    },
   );
 
   server.tool(
@@ -84,7 +122,7 @@ export function registerDocTools(server: McpServer) {
       const client = getClient();
       const hpath = await client.getHPathByID(id);
       return { content: [{ type: "text", text: hpath }] };
-    }
+    },
   );
 
   server.tool(
@@ -98,6 +136,6 @@ export function registerDocTools(server: McpServer) {
       const client = getClient();
       const ids = await client.getIDsByHPath(path, notebook);
       return { content: [{ type: "text", text: JSON.stringify(ids) }] };
-    }
+    },
   );
 }

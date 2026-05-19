@@ -1,16 +1,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-
-import { registerNotebookTools } from "./tools/atomic/notebooks.js";
-import { registerDocTools } from "./tools/atomic/docs.js";
-import { registerBlockTools } from "./tools/atomic/blocks.js";
+import { registerPrompts } from "./prompts/index.js";
+import { registerResources } from "./resources/index.js";
 import { registerAttrTools } from "./tools/atomic/attrs.js";
+import { registerBlockTools } from "./tools/atomic/blocks.js";
+import { registerDocTools } from "./tools/atomic/docs.js";
+import { registerNotebookTools } from "./tools/atomic/notebooks.js";
 import { registerQueryTools } from "./tools/atomic/query.js";
-import { registerFileTools, registerSystemTools } from "./tools/atomic/system-files.js";
+import {
+  registerFileTools,
+  registerSystemTools,
+} from "./tools/atomic/system-files.js";
 import { registerCompositeNoteTools } from "./tools/composite/notes.js";
 import { registerCompositeSearchTools } from "./tools/composite/search.js";
-import { registerResources } from "./resources/index.js";
-import { registerPrompts } from "./prompts/index.js";
 
 const server = new McpServer({
   name: "SiYuan Note MCP Server",

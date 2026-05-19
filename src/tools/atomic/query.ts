@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
@@ -10,8 +10,10 @@ export function registerQueryTools(server: McpServer) {
     async ({ sql }: { sql: string }) => {
       const client = getClient();
       const result = await client.querySql(sql);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    },
   );
 
   server.tool(
@@ -22,7 +24,7 @@ export function registerQueryTools(server: McpServer) {
       const client = getClient();
       await client.flushTransaction();
       return { content: [{ type: "text", text: "Transactions flushed" }] };
-    }
+    },
   );
 
   server.tool(
@@ -33,6 +35,6 @@ export function registerQueryTools(server: McpServer) {
       const client = getClient();
       const result = await client.exportMdContent(id);
       return { content: [{ type: "text", text: result.content }] };
-    }
+    },
   );
 }
