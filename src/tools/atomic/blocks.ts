@@ -220,17 +220,38 @@ export function registerBlockTools(server: McpServer) {
   );
 
   server.tool(
+    "unfold_block",
+    "展开块 / Unfold a block",
+    { id: z.string().describe("块 ID / Block ID") },
+    async ({ id }: { id: string }) => {
+      const client = getClient();
+      await client.unfoldBlock(id);
+      return { content: [{ type: "text", text: `Block ${id} unfolded` }] };
+    },
+  );
+
+  server.tool(
     "transfer_block_ref",
     "转移块引用 / Transfer block reference",
     {
       fromID: z.string().describe("定义块 ID / From block ID"),
       toID: z.string().describe("目标块 ID / To block ID"),
-      refIDs: z.array(z.string()).optional().describe("引用块 ID 列表 / List of reference block IDs"),
+      refIDs: z
+        .array(z.string())
+        .optional()
+        .describe("引用块 ID 列表 / List of reference block IDs"),
     },
     async ({ fromID, toID, refIDs }) => {
       const client = getClient();
       await client.transferBlockRef(fromID, toID, refIDs);
-      return { content: [{ type: "text", text: `References transferred from ${fromID} to ${toID}` }] };
+      return {
+        content: [
+          {
+            type: "text",
+            text: `References transferred from ${fromID} to ${toID}`,
+          },
+        ],
+      };
     },
   );
 }

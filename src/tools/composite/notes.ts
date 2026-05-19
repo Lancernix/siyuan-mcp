@@ -9,7 +9,9 @@ export function registerCompositeNoteTools(server: McpServer) {
     "智能创建笔记（自动匹配笔记本和路径） / Smartly create a note (auto-match notebook and path)",
     {
       title: z.string().describe("笔记标题 / Note title"),
-      content: z.string().describe("笔记内容 (Markdown) / Note content (Markdown)"),
+      content: z
+        .string()
+        .describe("笔记内容 (Markdown) / Note content (Markdown)"),
       notebookName: z
         .string()
         .optional()
@@ -38,7 +40,10 @@ export function registerCompositeNoteTools(server: McpServer) {
       const id = await client.createDocWithMd(notebookId, path, content);
       return {
         content: [
-          { type: "text", text: `Note "${title}" created in path ${path} (ID: ${id})` },
+          {
+            type: "text",
+            text: `Note "${title}" created in path ${path} (ID: ${id})`,
+          },
         ],
       };
     },
@@ -49,22 +54,20 @@ export function registerCompositeNoteTools(server: McpServer) {
     "更新或创建笔记内容 / Update or create note content",
     {
       targetId: z.string().describe("目标文档 ID / Target document ID"),
-      content: z
-        .string()
-        .describe("新的 Markdown 内容 / New Markdown content"),
+      content: z.string().describe("新的 Markdown 内容 / New Markdown content"),
     },
     async ({ targetId, content }) => {
       const client = getClient();
 
       const cleaned = stripMetadataAndH1(content);
-      
+
       try {
         const children = await client.getChildBlocks(targetId);
-        
+
         if (children.length > 0) {
           // Attempt to delete children. If any fail, we stop to prevent corrupted state.
           await Promise.all(
-            children.map((child) => client.deleteBlock(child.id))
+            children.map((child) => client.deleteBlock(child.id)),
           );
         }
 
@@ -100,11 +103,11 @@ export function registerCompositeNoteTools(server: McpServer) {
     },
     async ({ query }) => {
       const client = getClient();
-      
+
       // Basic protection against SQL injection by escaping single quotes
       const escapedQuery = query.replace(/'/g, "''");
       const sql = `SELECT * FROM blocks WHERE content LIKE '%${escapedQuery}%' AND type = 'd' LIMIT 10`;
-      
+
       const results = await client.querySql(sql);
       return {
         content: [{ type: "text", text: JSON.stringify(results, null, 2) }],

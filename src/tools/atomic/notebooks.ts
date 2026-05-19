@@ -102,7 +102,10 @@ export function registerNotebookTools(server: McpServer) {
     "保存笔记本配置 / Save notebook configuration",
     {
       notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      conf: z.object({}).passthrough().describe("配置对象 / Configuration object"),
+      conf: z
+        .object({})
+        .passthrough()
+        .describe("配置对象 / Configuration object"),
     },
     async ({ notebook, conf }) => {
       const client = getClient();

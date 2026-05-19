@@ -21,7 +21,11 @@ export function registerFileTools(server: McpServer) {
     {
       path: z.string().describe("文件路径 / File path"),
       file: z.string().describe("文件内容 / File content"),
-      isDir: z.boolean().optional().default(false).describe("是否为目录 / Is directory"),
+      isDir: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe("是否为目录 / Is directory"),
     },
     async ({ path, file, isDir }) => {
       const client = getClient();
