@@ -1,78 +1,44 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { getClient } from "../../client/index.js";
-import { parseHPath, stripMetadataAndH1 } from "../../utils/index.js";
+import { stripMetadataAndH1 } from "../../utils/index.js";
 
 export function registerCompositeNoteTools(server: McpServer) {
   server.tool(
     "smart_create_note",
-    "智能创建笔记，支持路径自动匹配和标题自动生成 / Smartly create a note with path matching and auto-title",
+    "智能创建笔记（自动匹配笔记本和路径） / Smartly create a note (auto-match notebook and path)",
     {
-      notebook: z.string().optional().describe("笔记本名称 / Notebook name"),
-      folder: z.string().optional().describe("目标文件夹 / Target folder"),
-      title: z.string().optional().describe("标题 / Title"),
-      content: z.string().describe("Markdown 内容 / Markdown content"),
+      title: z.string().describe("笔记标题 / Note title"),
+      content: z.string().describe("笔记内容 (Markdown) / Note content (Markdown)"),
+      notebookName: z
+        .string()
+        .optional()
+        .describe("指定笔记本名称 / Specified notebook name"),
     },
-    async ({
-      notebook,
-      folder,
-      title,
-      content,
-    }: {
-      notebook?: string;
-      folder?: string;
-      title?: string;
-      content: string;
-    }) => {
+    async ({ title, content, notebookName }) => {
       const client = getClient();
-      let targetNbId = "";
-      let targetHPath = "";
+      let notebookId: string | null = null;
 
-      const notebooks = await client.listNotebooks();
-      const openNotebooks = notebooks.filter((n) => !n.closed);
-
-      if (notebook) {
-        const nb = notebooks.find((n) => n.name === notebook);
-        if (nb) targetNbId = nb.id;
+      if (notebookName) {
+        notebookId = await client.getNotebookIDByName(notebookName);
       }
 
-      if (folder) {
-        const escapedFolder = folder.replace(/'/g, "''");
-        const folders = await client.querySql(
-          `SELECT box, hpath FROM blocks WHERE type = 'd' AND content LIKE '%${escapedFolder}%' ORDER BY updated DESC LIMIT 1`,
-        );
-        if (folders.length > 0) {
-          targetNbId = targetNbId || (folders[0].box as string);
-          targetHPath = folders[0].hpath as string;
-        } else {
-          targetHPath = folder.startsWith("/") ? folder : `/${folder}`;
-        }
+      if (!notebookId) {
+        const notebooks = await client.listNotebooks();
+        notebookId = notebooks[0]?.id;
       }
 
-      if (!targetNbId && openNotebooks.length > 0) {
-        targetNbId = openNotebooks[0].id;
+      if (!notebookId) {
+        throw new Error("No notebook found");
       }
 
-      if (!targetNbId) {
-        throw new Error("No target notebook found or specified.");
-      }
+      const today = new Date().toISOString().split("T")[0];
+      const path = `/mcp/${today}/${title}`;
 
-      const noteTitle =
-        title || new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-      if (!targetHPath.endsWith("/")) targetHPath += "/";
-      targetHPath += noteTitle;
-
-      const docId = await client.createDocWithMd(
-        targetNbId,
-        targetHPath,
-        content,
-      );
+      const id = await client.createDocWithMd(notebookId, path, content);
       return {
         content: [
-          {
-            type: "text",
-            text: `✅ Note created!\nID: ${docId}\nPath: ${targetHPath}`,
-          },
+          { type: "text", text: `Note "${title}" created in path ${path} (ID: ${id})` },
         ],
       };
     },
@@ -82,47 +48,66 @@ export function registerCompositeNoteTools(server: McpServer) {
     "upsert_note_content",
     "更新或创建笔记内容 / Update or create note content",
     {
-      id: z.string().optional().describe("文档 ID / Document ID"),
-      path: z
+      targetId: z.string().describe("目标文档 ID / Target document ID"),
+      content: z
         .string()
-        .optional()
-        .describe("人类可读路径 / Human-readable path"),
-      content: z.string().describe("Markdown 内容 / Markdown content"),
+        .describe("新的 Markdown 内容 / New Markdown content"),
     },
-    async ({
-      id,
-      path,
-      content,
-    }: {
-      id?: string;
-      path?: string;
-      content: string;
-    }) => {
+    async ({ targetId, content }) => {
       const client = getClient();
-      let targetId = id;
-
-      if (!targetId && path) {
-        const { notebookName, hpath } = parseHPath(path);
-        const nbId = await client.getNotebookIDByName(notebookName);
-        if (nbId) {
-          const ids = await client.getIDsByHPath(hpath, nbId);
-          if (ids.length > 0) targetId = ids[0];
-        }
-      }
-
-      if (!targetId) {
-        throw new Error("Could not find document ID to update.");
-      }
 
       const cleaned = stripMetadataAndH1(content);
-      const children = await client.getChildBlocks(targetId);
-      for (const child of children) {
-        await client.deleteBlock(child.id);
-      }
-      await client.appendBlock(targetId, cleaned);
+      
+      try {
+        const children = await client.getChildBlocks(targetId);
+        
+        if (children.length > 0) {
+          // Attempt to delete children. If any fail, we stop to prevent corrupted state.
+          await Promise.all(
+            children.map((child) => client.deleteBlock(child.id))
+          );
+        }
 
+        await client.appendBlock(targetId, cleaned);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Successfully replaced content of document ${targetId}.`,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Failed to upsert document ${targetId}: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.tool(
+    "smart_search",
+    "智能搜索（全文搜索 + 路径匹配） / Smart search (full-text + path match)",
+    {
+      query: z.string().describe("搜索词 / Search query"),
+    },
+    async ({ query }) => {
+      const client = getClient();
+      
+      // Basic protection against SQL injection by escaping single quotes
+      const escapedQuery = query.replace(/'/g, "''");
+      const sql = `SELECT * FROM blocks WHERE content LIKE '%${escapedQuery}%' AND type = 'd' LIMIT 10`;
+      
+      const results = await client.querySql(sql);
       return {
-        content: [{ type: "text", text: "✅ Document content updated." }],
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
       };
     },
   );

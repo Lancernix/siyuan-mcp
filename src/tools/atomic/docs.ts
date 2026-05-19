@@ -138,4 +138,15 @@ export function registerDocTools(server: McpServer) {
       return { content: [{ type: "text", text: JSON.stringify(ids) }] };
     },
   );
+
+  server.tool(
+    "get_path_by_id",
+    "根据 ID 获取存储路径 / Get storage path based on ID",
+    { id: z.string().describe("块 ID / Block ID") },
+    async ({ id }: { id: string }) => {
+      const client = getClient();
+      const path = await client.getPathByID(id);
+      return { content: [{ type: "text", text: path }] };
+    },
+  );
 }

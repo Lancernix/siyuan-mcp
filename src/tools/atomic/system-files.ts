@@ -16,6 +16,21 @@ export function registerFileTools(server: McpServer) {
   );
 
   server.tool(
+    "put_file",
+    "写入文件 / Put a file",
+    {
+      path: z.string().describe("文件路径 / File path"),
+      file: z.string().describe("文件内容 / File content"),
+      isDir: z.boolean().optional().default(false).describe("是否为目录 / Is directory"),
+    },
+    async ({ path, file, isDir }) => {
+      const client = getClient();
+      await client.putFile(path, file, isDir);
+      return { content: [{ type: "text", text: `File ${path} written` }] };
+    },
+  );
+
+  server.tool(
     "remove_file",
     "删除文件 / Remove a file",
     { path: z.string().describe("文件路径 / File path") },
@@ -93,6 +108,17 @@ export function registerSystemTools(server: McpServer) {
       return {
         content: [{ type: "text", text: JSON.stringify(info, null, 2) }],
       };
+    },
+  );
+
+  server.tool(
+    "get_current_time",
+    "获取系统当前时间 / Get current system time",
+    {},
+    async () => {
+      const client = getClient();
+      const time = await client.currentTime();
+      return { content: [{ type: "text", text: time.toString() }] };
     },
   );
 }
