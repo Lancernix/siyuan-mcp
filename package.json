@@ -5,7 +5,7 @@
     "siyuan-mcp": "dist/server.js"
   },
   "scripts": {
-    "build": "bun x tsc -p tsconfig.build.json && chmod +x dist/server.js",
+    "build": "tsc -p tsconfig.build.json && chmod +x dist/server.js",
     "start": "bun dist/server.js",
     "dev": "bun src/server.ts",
     "inspect": "mcp-inspector bun src/server.ts",
