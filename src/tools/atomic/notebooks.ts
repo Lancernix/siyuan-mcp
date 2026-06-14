@@ -3,23 +3,41 @@ import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
 export function registerNotebookTools(server: McpServer) {
-  server.tool(
+  server.registerTool(
     "list_notebooks",
-    "列出所有笔记本 / List all notebooks",
-    {},
+    {
+      description: "List all notebooks",
+      outputSchema: {
+        notebooks: z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            icon: z.string(),
+            sort: z.number(),
+            closed: z.boolean(),
+          }),
+        ),
+      },
+    },
     async () => {
       const client = getClient();
       const notebooks = await client.listNotebooks();
+      const structuredContent = { notebooks };
       return {
-        content: [{ type: "text", text: JSON.stringify(notebooks, null, 2) }],
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "open_notebook",
-    "打开指定笔记本 / Open a notebook",
-    { notebook: z.string().describe("笔记本 ID / Notebook ID") },
+    {
+      description: "Open a notebook",
+      inputSchema: { notebook: z.string().describe("Notebook ID") },
+    },
     async ({ notebook }) => {
       const client = getClient();
       await client.openNotebook(notebook);
@@ -29,10 +47,12 @@ export function registerNotebookTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "close_notebook",
-    "关闭指定笔记本 / Close a notebook",
-    { notebook: z.string().describe("笔记本 ID / Notebook ID") },
+    {
+      description: "Close a notebook",
+      inputSchema: { notebook: z.string().describe("Notebook ID") },
+    },
     async ({ notebook }) => {
       const client = getClient();
       await client.closeNotebook(notebook);
@@ -42,12 +62,14 @@ export function registerNotebookTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rename_notebook",
-    "重命名笔记本 / Rename a notebook",
     {
-      notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      name: z.string().describe("新名称 / New name"),
+      description: "Rename a notebook",
+      inputSchema: {
+        notebook: z.string().describe("Notebook ID"),
+        name: z.string().describe("New name"),
+      },
     },
     async ({ notebook, name }) => {
       const client = getClient();
@@ -60,21 +82,40 @@ export function registerNotebookTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "create_notebook",
-    "创建新笔记本 / Create a new notebook",
-    { name: z.string().describe("笔记本名称 / Notebook name") },
+    {
+      description: "Create a new notebook",
+      inputSchema: { name: z.string().describe("Notebook name") },
+      outputSchema: {
+        notebook: z.object({
+          id: z.string(),
+          name: z.string(),
+          icon: z.string(),
+          sort: z.number(),
+          closed: z.boolean(),
+        }),
+      },
+    },
     async ({ name }) => {
       const client = getClient();
       const nb = await client.createNotebook(name);
-      return { content: [{ type: "text", text: JSON.stringify(nb, null, 2) }] };
+      const structuredContent = nb;
+      return {
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
+      };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "remove_notebook",
-    "删除笔记本 / Remove a notebook",
-    { notebook: z.string().describe("笔记本 ID / Notebook ID") },
+    {
+      description: "Remove a notebook",
+      inputSchema: { notebook: z.string().describe("Notebook ID") },
+    },
     async ({ notebook }) => {
       const client = getClient();
       await client.removeNotebook(notebook);
@@ -84,28 +125,46 @@ export function registerNotebookTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "get_notebook_conf",
-    "获取笔记本配置 / Get notebook configuration",
-    { notebook: z.string().describe("笔记本 ID / Notebook ID") },
+    {
+      description: "Get notebook configuration",
+      inputSchema: { notebook: z.string().describe("Notebook ID") },
+      outputSchema: {
+        box: z.string(),
+        name: z.string(),
+        conf: z.record(z.string(), z.unknown()),
+      },
+    },
     async ({ notebook }) => {
       const client = getClient();
-      const conf = await client.getNotebookConf(notebook);
+      const {
+        box,
+        conf: confObj,
+        name,
+      } = (await client.getNotebookConf(notebook)) as {
+        box: string;
+        conf: Record<string, unknown>;
+        name: string;
+      };
+      const structuredContent = { box, name, conf: confObj };
       return {
-        content: [{ type: "text", text: JSON.stringify(conf, null, 2) }],
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "set_notebook_conf",
-    "保存笔记本配置 / Save notebook configuration",
     {
-      notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      conf: z
-        .object({})
-        .passthrough()
-        .describe("配置对象 / Configuration object"),
+      description: "Save notebook configuration",
+      inputSchema: {
+        notebook: z.string().describe("Notebook ID"),
+        conf: z.object({}).passthrough().describe("Configuration object"),
+      },
     },
     async ({ notebook, conf }) => {
       const client = getClient();

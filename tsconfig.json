@@ -7,11 +7,9 @@
     "tsBuildInfoFile": ".tsbuildinfo",
     "skipLibCheck": true,
     "outDir": "./dist",
-    "types": ["bun-types"],
     "strict": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowJs": true
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src", "test"]
 }

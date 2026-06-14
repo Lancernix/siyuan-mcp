@@ -1,20 +1,18 @@
 {
   "name": "@lancernix/siyuan-mcp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "bin": {
     "siyuan-mcp": "dist/server.js"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=10.0.0"
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
   },
   "scripts": {
     "build": "tsup src/server.ts --format esm --dts --clean && chmod +x dist/server.js",
     "start": "node dist/server.js",
-    "start:bun": "bun dist/server.js",
-    "dev": "node --loader ts-node/esm src/server.ts",
-    "dev:bun": "bun src/server.ts",
-    "check": "biome check . && node --max-old-space-size=768 ./node_modules/.bin/tsc --noEmit",
+    "dev": "tsx src/server.ts",
+    "check": "biome check . && tsc --noEmit",
     "lint": "biome check --write ."
   },
   "keywords": [
@@ -61,8 +59,8 @@
     "@modelcontextprotocol/inspector": "^0.19.0",
     "@semantic-release/npm": "^13.1.4",
     "@types/node": "^25.1.0",
-    "bun-types": "^1.3.8",
     "tsup": "^8.4.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.8.3"
   },
   "publishConfig": {

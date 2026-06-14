@@ -3,95 +3,87 @@ import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
 export function registerDocTools(server: McpServer) {
-  server.tool(
+  server.registerTool(
     "create_doc",
-    "在指定笔记本中新建文档 / Create a document in a notebook",
     {
-      notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      path: z
-        .string()
-        .describe("文档路径 / Document path (e.g., /daily/2024-03-20)"),
-      markdown: z.string().describe("Markdown 内容 / Markdown content"),
+      description: "Create a document in a notebook",
+      inputSchema: {
+        notebook: z.string().describe("Notebook ID"),
+        path: z
+          .string()
+          .describe(
+            "Document human-readable path (hpath), e.g. /daily/2024-03-20. Creates document with this name.",
+          ),
+        markdown: z.string().describe("Markdown content"),
+      },
     },
-    async ({
-      notebook,
-      path,
-      markdown,
-    }: {
-      notebook: string;
-      path: string;
-      markdown: string;
-    }) => {
+    async ({ notebook, path, markdown }) => {
       const client = getClient();
       const id = await client.createDocWithMd(notebook, path, markdown);
       return {
-        content: [{ type: "text", text: `Document created with ID: ${id}` }],
+        content: [{ type: "text", text: `Document created (ID: ${id})` }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "rename_doc",
-    "重命名文档 / Rename a document",
     {
-      notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      path: z.string().describe("文档路径 / Document path"),
-      title: z.string().describe("新标题 / New title"),
+      description: "Rename a document by storage path",
+      inputSchema: {
+        notebook: z.string().describe("Notebook ID"),
+        path: z
+          .string()
+          .describe(
+            "Document storage path (must end with .sy), e.g. /20210902210113-0avi12f.sy",
+          ),
+        title: z.string().describe("New title"),
+      },
     },
-    async ({
-      notebook,
-      path,
-      title,
-    }: {
-      notebook: string;
-      path: string;
-      title: string;
-    }) => {
+    async ({ notebook, path, title }) => {
       const client = getClient();
+      if (!path.endsWith(".sy")) path += ".sy";
       await client.renameDoc(notebook, path, title);
       return {
-        content: [
-          { type: "text", text: `Document at ${path} renamed to ${title}` },
-        ],
+        content: [{ type: "text", text: `Document renamed to ${title}` }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "remove_doc",
-    "删除文档 / Remove a document",
     {
-      notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      path: z.string().describe("文档路径 / Document path"),
+      description: "Remove a document by storage path",
+      inputSchema: {
+        notebook: z.string().describe("Notebook ID"),
+        path: z
+          .string()
+          .describe(
+            "Document storage path (must end with .sy), e.g. /20210902210113-0avi12f.sy",
+          ),
+      },
     },
-    async ({ notebook, path }: { notebook: string; path: string }) => {
+    async ({ notebook, path }) => {
       const client = getClient();
+      if (!path.endsWith(".sy")) path += ".sy";
       await client.removeDoc(notebook, path);
       return {
-        content: [{ type: "text", text: `Document at ${path} removed` }],
+        content: [{ type: "text", text: `Document removed: ${path}` }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "move_docs",
-    "移动文档 / Move documents",
     {
-      fromPaths: z
-        .array(z.string())
-        .describe("源路径列表 / List of source paths"),
-      toNotebook: z.string().describe("目标笔记本 ID / Target notebook ID"),
-      toPath: z.string().describe("目标路径 / Target path"),
+      description: "Move documents",
+      inputSchema: {
+        fromPaths: z.array(z.string()).describe("Source paths"),
+        toNotebook: z.string().describe("Target notebook ID"),
+        toPath: z.string().describe("Target path"),
+      },
     },
-    async ({
-      fromPaths,
-      toNotebook,
-      toPath,
-    }: {
-      fromPaths: string[];
-      toNotebook: string;
-      toPath: string;
-    }) => {
+    async ({ fromPaths, toNotebook, toPath }) => {
       const client = getClient();
       await client.moveDocs(fromPaths, toNotebook, toPath);
       return {
@@ -100,53 +92,122 @@ export function registerDocTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "get_hpath_by_path",
-    "根据路径获取人类可读路径 / Get human-readable path based on path",
     {
-      notebook: z.string().describe("笔记本 ID / Notebook ID"),
-      path: z.string().describe("路径 / Path"),
+      description: "Get human-readable path based on storage path",
+      inputSchema: {
+        notebook: z.string().describe("Notebook ID"),
+        path: z.string().describe("Storage path"),
+      },
     },
-    async ({ notebook, path }: { notebook: string; path: string }) => {
+    async ({ notebook, path }) => {
       const client = getClient();
       const hpath = await client.getHPathByPath(notebook, path);
       return { content: [{ type: "text", text: hpath }] };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "get_hpath_by_id",
-    "根据 ID 获取人类可读路径 / Get human-readable path based on ID",
-    { id: z.string().describe("块 ID / Block ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Get human-readable path based on block ID",
+      inputSchema: { id: z.string().describe("Block ID") },
+    },
+    async ({ id }) => {
       const client = getClient();
       const hpath = await client.getHPathByID(id);
       return { content: [{ type: "text", text: hpath }] };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "get_ids_by_hpath",
-    "根据人类可读路径获取 IDs / Get IDs by human-readable path",
     {
-      path: z.string().describe("人类可读路径 / Human-readable path"),
-      notebook: z.string().describe("笔记本 ID / Notebook ID"),
+      description: "Get document IDs by human-readable path",
+      inputSchema: {
+        path: z.string().describe("Human-readable path"),
+        notebook: z.string().describe("Notebook ID"),
+      },
     },
-    async ({ path, notebook }: { path: string; notebook: string }) => {
+    async ({ path, notebook }) => {
       const client = getClient();
       const ids = await client.getIDsByHPath(path, notebook);
       return { content: [{ type: "text", text: JSON.stringify(ids) }] };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "get_path_by_id",
-    "根据 ID 获取存储路径 / Get storage path based on ID",
-    { id: z.string().describe("块 ID / Block ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Get storage path and notebook by block ID",
+      inputSchema: { id: z.string().describe("Block ID") },
+      outputSchema: {
+        notebook: z.string(),
+        path: z.string(),
+      },
+    },
+    async ({ id }) => {
       const client = getClient();
-      const path = await client.getPathByID(id);
-      return { content: [{ type: "text", text: path }] };
+      const result = await client.getPathByID(id);
+      const structuredContent = result;
+      return {
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
+      };
+    },
+  );
+
+  server.registerTool(
+    "rename_doc_by_id",
+    {
+      description: "Rename a document by ID",
+      inputSchema: {
+        id: z.string().describe("Document ID"),
+        title: z.string().describe("New title"),
+      },
+    },
+    async ({ id, title }) => {
+      const client = getClient();
+      await client.renameDocByID(id, title);
+      return {
+        content: [{ type: "text", text: `Document renamed to ${title}` }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "remove_doc_by_id",
+    {
+      description: "Remove a document by ID",
+      inputSchema: { id: z.string().describe("Document ID") },
+    },
+    async ({ id }) => {
+      const client = getClient();
+      await client.removeDocByID(id);
+      return {
+        content: [{ type: "text", text: `Document removed: ${id}` }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "move_docs_by_id",
+    {
+      description: "Move documents by ID",
+      inputSchema: {
+        fromIDs: z.array(z.string()).describe("Source document IDs"),
+        toID: z.string().describe("Target parent document ID or notebook ID"),
+      },
+    },
+    async ({ fromIDs, toID }) => {
+      const client = getClient();
+      await client.moveDocsByID(fromIDs, toID);
+      return {
+        content: [{ type: "text", text: `Documents moved to ${toID}` }],
+      };
     },
   );
 }

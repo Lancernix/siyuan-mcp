@@ -72,8 +72,11 @@ export class SiyuanClient {
     await this.request("/api/notebook/renameNotebook", { notebook, name });
   }
 
-  async createNotebook(name: string): Promise<Notebook> {
-    return this.request<Notebook>("/api/notebook/createNotebook", { name });
+  async createNotebook(name: string): Promise<{ notebook: Notebook }> {
+    return this.request<{ notebook: Notebook }>(
+      "/api/notebook/createNotebook",
+      { name },
+    );
   }
 
   async removeNotebook(notebook: string): Promise<void> {
@@ -125,6 +128,18 @@ export class SiyuanClient {
     });
   }
 
+  async renameDocByID(id: string, title: string): Promise<void> {
+    await this.request("/api/filetree/renameDocByID", { id, title });
+  }
+
+  async removeDocByID(id: string): Promise<void> {
+    await this.request("/api/filetree/removeDocByID", { id });
+  }
+
+  async moveDocsByID(fromIDs: string[], toID: string): Promise<void> {
+    await this.request("/api/filetree/moveDocsByID", { fromIDs, toID });
+  }
+
   async getHPathByPath(notebook: string, path: string): Promise<string> {
     return this.request<string>("/api/filetree/getHPathByPath", {
       notebook,
@@ -143,8 +158,11 @@ export class SiyuanClient {
     });
   }
 
-  async getPathByID(id: string): Promise<string> {
-    return this.request<string>("/api/filetree/getPathByID", { id });
+  async getPathByID(id: string): Promise<{ notebook: string; path: string }> {
+    return this.request<{ notebook: string; path: string }>(
+      "/api/filetree/getPathByID",
+      { id },
+    );
   }
 
   // --- Block APIs ---
@@ -265,12 +283,37 @@ export class SiyuanClient {
   }
 
   async flushTransaction(): Promise<void> {
-    await this.request("/api/transactions/flushTransaction");
+    await this.request("/api/sqlite/flushTransaction");
   }
 
   // --- Export APIs ---
   async exportMdContent(id: string): Promise<ExportResult> {
     return this.request<ExportResult>("/api/export/exportMdContent", { id });
+  }
+
+  async exportResources(
+    paths: string[],
+    name?: string,
+  ): Promise<{ path: string }> {
+    return this.request<{ path: string }>("/api/export/exportResources", {
+      paths,
+      name,
+    });
+  }
+
+  // --- Template APIs ---
+  async renderTemplate(
+    id: string,
+    path: string,
+  ): Promise<{ content: string; path: string }> {
+    return this.request<{ content: string; path: string }>(
+      "/api/template/render",
+      { id, path },
+    );
+  }
+
+  async renderSprig(template: string): Promise<string> {
+    return this.request<string>("/api/template/renderSprig", { template });
   }
 
   // --- File APIs ---
@@ -334,16 +377,13 @@ export class SiyuanClient {
       formData.append("file[]", file as Blob);
     }
 
-    const response = await fetch(
-      `${this.config.apiUrl}/api/asset/uploadAsset`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Token ${this.config.apiToken}`,
-        },
-        body: formData,
+    const response = await fetch(`${this.config.apiUrl}/api/asset/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${this.config.apiToken}`,
       },
-    );
+      body: formData,
+    });
 
     const result = (await response.json()) as {
       code: number;

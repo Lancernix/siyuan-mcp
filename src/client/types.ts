@@ -11,21 +11,6 @@ export interface Notebook {
   closed: boolean;
 }
 
-export interface Doc {
-  id: string;
-  title: string;
-  type: string;
-  subtype: string;
-  content: string;
-  path: string;
-  icon: string;
-  sort: number;
-  closed: boolean;
-  leaf: boolean;
-  bookmark: string;
-  name: string;
-}
-
 export interface Block {
   id: string;
   parent_id: string;

@@ -1,3 +1,23 @@
+export function getString(row: Record<string, unknown>, key: string): string {
+  const val = row[key];
+  if (val === null || val === undefined) return "";
+  return String(val);
+}
+
+export function getStringOrDefault(
+  row: Record<string, unknown>,
+  key: string,
+  defaultValue: string,
+): string {
+  const val = row[key];
+  if (val === null || val === undefined) return defaultValue;
+  return String(val);
+}
+
+export function escapeSqlLike(value: string): string {
+  return value.replace(/'/g, "''").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
 export function parseHPath(fullPath: string) {
   const parts = fullPath.split("/").filter((p) => p !== "");
   if (parts.length === 0) return { notebookName: "", hpath: "/" };

@@ -3,243 +3,227 @@ import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
 export function registerBlockTools(server: McpServer) {
-  server.tool(
+  server.registerTool(
     "insert_block",
-    "插入块 / Insert a block",
     {
-      data: z.string().describe("数据内容 / Data content"),
-      dataType: z
-        .enum(["markdown", "dom"])
-        .optional()
-        .default("markdown")
-        .describe("数据类型 / Data type"),
-      nextID: z
-        .string()
-        .optional()
-        .describe("后一个块的 ID / ID of the next block"),
-      previousID: z
-        .string()
-        .optional()
-        .describe("前一个块的 ID / ID of the previous block"),
-      parentID: z
-        .string()
-        .optional()
-        .describe("父块 ID / ID of the parent block"),
+      description: "Insert a block",
+      inputSchema: {
+        data: z.string().describe("Content data"),
+        dataType: z
+          .enum(["markdown", "dom"])
+          .optional()
+          .default("markdown")
+          .describe("Data type"),
+        nextID: z.string().optional().describe("ID of the next block"),
+        previousID: z.string().optional().describe("ID of the previous block"),
+        parentID: z.string().optional().describe("Parent block ID"),
+      },
     },
-    async ({
-      data,
-      dataType,
-      nextID,
-      previousID,
-      parentID,
-    }: {
-      data: string;
-      dataType: "markdown" | "dom";
-      nextID?: string;
-      previousID?: string;
-      parentID?: string;
-    }) => {
+    async ({ data, dataType, nextID, previousID, parentID }) => {
       const client = getClient();
-      const result = await client.insertBlock(
-        data,
-        dataType,
-        nextID,
-        previousID,
-        parentID,
-      );
+      await client.insertBlock(data, dataType, nextID, previousID, parentID);
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [{ type: "text", text: "Block inserted" }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "prepend_block",
-    "插入前置子块 / Prepend a child block",
     {
-      parentID: z.string().describe("父块 ID / ID of the parent block"),
-      data: z.string().describe("数据内容 / Data content"),
-      dataType: z
-        .enum(["markdown", "dom"])
-        .optional()
-        .default("markdown")
-        .describe("数据类型 / Data type"),
+      description: "Prepend a child block to a parent block",
+      inputSchema: {
+        parentID: z.string().describe("Parent block ID"),
+        data: z.string().describe("Content data"),
+        dataType: z
+          .enum(["markdown", "dom"])
+          .optional()
+          .default("markdown")
+          .describe("Data type"),
+      },
     },
-    async ({
-      parentID,
-      data,
-      dataType,
-    }: {
-      parentID: string;
-      data: string;
-      dataType: "markdown" | "dom";
-    }) => {
+    async ({ parentID, data, dataType }) => {
       const client = getClient();
-      const result = await client.prependBlock(parentID, data, dataType);
+      await client.prependBlock(parentID, data, dataType);
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [{ type: "text", text: "Block prepended" }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "append_block",
-    "插入后置子块 / Append a child block",
     {
-      parentID: z.string().describe("父块 ID / ID of the parent block"),
-      data: z.string().describe("数据内容 / Data content"),
-      dataType: z
-        .enum(["markdown", "dom"])
-        .optional()
-        .default("markdown")
-        .describe("数据类型 / Data type"),
+      description: "Append a child block to a parent block",
+      inputSchema: {
+        parentID: z.string().describe("Parent block ID"),
+        data: z.string().describe("Content data"),
+        dataType: z
+          .enum(["markdown", "dom"])
+          .optional()
+          .default("markdown")
+          .describe("Data type"),
+      },
     },
-    async ({
-      parentID,
-      data,
-      dataType,
-    }: {
-      parentID: string;
-      data: string;
-      dataType: "markdown" | "dom";
-    }) => {
+    async ({ parentID, data, dataType }) => {
       const client = getClient();
-      const result = await client.appendBlock(parentID, data, dataType);
+      await client.appendBlock(parentID, data, dataType);
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [{ type: "text", text: "Block appended" }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "update_block",
-    "更新块 / Update a block",
     {
-      id: z.string().describe("块 ID / Block ID"),
-      data: z.string().describe("新的数据内容 / New data content"),
-      dataType: z
-        .enum(["markdown", "dom"])
-        .optional()
-        .default("markdown")
-        .describe("数据类型 / Data type"),
+      description: "Update a block's content",
+      inputSchema: {
+        id: z.string().describe("Block ID"),
+        data: z.string().describe("New content data"),
+        dataType: z
+          .enum(["markdown", "dom"])
+          .optional()
+          .default("markdown")
+          .describe("Data type"),
+      },
     },
-    async ({
-      id,
-      data,
-      dataType,
-    }: {
-      id: string;
-      data: string;
-      dataType: "markdown" | "dom";
-    }) => {
+    async ({ id, data, dataType }) => {
       const client = getClient();
-      const result = await client.updateBlock(id, data, dataType);
+      await client.updateBlock(id, data, dataType);
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [{ type: "text", text: `Block ${id} updated` }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "delete_block",
-    "删除块 / Delete a block",
-    { id: z.string().describe("块 ID / Block ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Delete a block",
+      inputSchema: { id: z.string().describe("Block ID") },
+    },
+    async ({ id }) => {
       const client = getClient();
       await client.deleteBlock(id);
       return { content: [{ type: "text", text: `Block ${id} deleted` }] };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "move_block",
-    "移动块 / Move a block",
     {
-      id: z.string().describe("块 ID / Block ID"),
-      previousID: z
-        .string()
-        .optional()
-        .describe("前一个块的 ID / ID of the previous block"),
-      parentID: z
-        .string()
-        .optional()
-        .describe("父块 ID / ID of the parent block"),
+      description: "Move a block to a new position",
+      inputSchema: {
+        id: z.string().describe("Block ID"),
+        previousID: z.string().optional().describe("ID of the previous block"),
+        parentID: z.string().optional().describe("Parent block ID"),
+      },
     },
-    async ({
-      id,
-      previousID,
-      parentID,
-    }: {
-      id: string;
-      previousID?: string;
-      parentID?: string;
-    }) => {
+    async ({ id, previousID, parentID }) => {
       const client = getClient();
-      const result = await client.moveBlock(id, previousID, parentID);
+      await client.moveBlock(id, previousID, parentID);
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [{ type: "text", text: `Block ${id} moved` }],
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "get_block_kramdown",
-    "获取块 kramdown 源码 / Get block kramdown source",
-    { id: z.string().describe("块 ID / Block ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Get block kramdown source",
+      inputSchema: { id: z.string().describe("Block ID") },
+      outputSchema: {
+        id: z.string(),
+        kramdown: z.string(),
+      },
+    },
+    async ({ id }) => {
       const client = getClient();
       const result = await client.getBlockKramdown(id);
+      const structuredContent = result;
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "get_child_blocks",
-    "获取子块 / Get child blocks",
-    { id: z.string().describe("父块 ID / Parent block ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Get child blocks of a parent block",
+      inputSchema: { id: z.string().describe("Parent block ID") },
+      outputSchema: {
+        blocks: z.array(
+          z.object({
+            id: z.string(),
+            type: z.string(),
+            subtype: z.string().optional(),
+          }),
+        ),
+      },
+    },
+    async ({ id }) => {
       const client = getClient();
       const blocks = await client.getChildBlocks(id);
+      const structuredContent = {
+        blocks: blocks.map((b) => ({
+          id: b.id,
+          type: b.type,
+          subtype: b.subtype || undefined,
+        })),
+      };
       return {
-        content: [{ type: "text", text: JSON.stringify(blocks, null, 2) }],
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "fold_block",
-    "折叠块 / Fold a block",
-    { id: z.string().describe("块 ID / Block ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Fold a block",
+      inputSchema: { id: z.string().describe("Block ID") },
+    },
+    async ({ id }) => {
       const client = getClient();
       await client.foldBlock(id);
       return { content: [{ type: "text", text: `Block ${id} folded` }] };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "unfold_block",
-    "展开块 / Unfold a block",
-    { id: z.string().describe("块 ID / Block ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Unfold a block",
+      inputSchema: { id: z.string().describe("Block ID") },
+    },
+    async ({ id }) => {
       const client = getClient();
       await client.unfoldBlock(id);
       return { content: [{ type: "text", text: `Block ${id} unfolded` }] };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "transfer_block_ref",
-    "转移块引用 / Transfer block reference",
     {
-      fromID: z.string().describe("定义块 ID / From block ID"),
-      toID: z.string().describe("目标块 ID / To block ID"),
-      refIDs: z
-        .array(z.string())
-        .optional()
-        .describe("引用块 ID 列表 / List of reference block IDs"),
+      description: "Transfer block references from one block to another",
+      inputSchema: {
+        fromID: z.string().describe("Source block ID"),
+        toID: z.string().describe("Target block ID"),
+        refIDs: z
+          .array(z.string())
+          .optional()
+          .describe("Specific reference block IDs to transfer"),
+      },
     },
     async ({ fromID, toID, refIDs }) => {
       const client = getClient();

@@ -3,31 +3,38 @@ import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
 export function registerAttrTools(server: McpServer) {
-  server.tool(
+  server.registerTool(
     "get_block_attrs",
-    "获取块属性 / Get block attributes",
     {
-      id: z.string().describe("块 ID / Block ID"),
+      description: "Get block attributes",
+      inputSchema: { id: z.string().describe("Block ID") },
+      outputSchema: {
+        attrs: z.record(z.string(), z.string()),
+      },
     },
-    async ({ id }: { id: string }) => {
+    async ({ id }) => {
       const client = getClient();
       const attrs = await client.getBlockAttrs(id);
+      const structuredContent = { attrs };
       return {
-        content: [{ type: "text", text: JSON.stringify(attrs, null, 2) }],
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "set_block_attrs",
-    "设置块属性 / Set block attributes",
     {
-      id: z.string().describe("块 ID / Block ID"),
-      attrs: z
-        .record(z.string(), z.any())
-        .describe("属性对象 / Attributes object"),
+      description: "Set block attributes",
+      inputSchema: {
+        id: z.string().describe("Block ID"),
+        attrs: z.record(z.string(), z.any()).describe("Attributes object"),
+      },
     },
-    async ({ id, attrs }: { id: string; attrs: Record<string, unknown> }) => {
+    async ({ id, attrs }) => {
       const client = getClient();
       await client.setBlockAttrs(id, attrs);
       return {

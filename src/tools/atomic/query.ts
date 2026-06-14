@@ -3,23 +3,33 @@ import { z } from "zod";
 import { getClient } from "../../client/index.js";
 
 export function registerQueryTools(server: McpServer) {
-  server.tool(
+  server.registerTool(
     "sql_query",
-    "执行 SQL 查询 / Execute SQL query",
-    { sql: z.string().describe("SQL 语句 / SQL statement") },
-    async ({ sql }: { sql: string }) => {
+    {
+      description: "Execute a SQL query",
+      inputSchema: { sql: z.string().describe("SQL statement") },
+      outputSchema: {
+        rows: z.array(z.record(z.string(), z.unknown())),
+      },
+    },
+    async ({ sql }) => {
       const client = getClient();
       const result = await client.querySql(sql);
+      const structuredContent = { rows: result };
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
       };
     },
   );
 
-  server.tool(
+  server.registerTool(
     "flush_transaction",
-    "提交所有未决事务 / Flush all pending transactions",
-    {},
+    {
+      description: "Flush all pending transactions",
+    },
     async () => {
       const client = getClient();
       await client.flushTransaction();
@@ -27,14 +37,63 @@ export function registerQueryTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  server.registerTool(
     "export_md_content",
-    "导出 Markdown 文本 / Export Markdown content",
-    { id: z.string().describe("文档 ID / Document ID") },
-    async ({ id }: { id: string }) => {
+    {
+      description: "Export document content as Markdown",
+      inputSchema: { id: z.string().describe("Document ID") },
+      outputSchema: {
+        hPath: z.string(),
+        content: z.string(),
+      },
+    },
+    async ({ id }) => {
       const client = getClient();
       const result = await client.exportMdContent(id);
-      return { content: [{ type: "text", text: result.content }] };
+      const structuredContent = {
+        hPath: result.hPath,
+        content: result.content,
+      };
+      return {
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
+      };
+    },
+  );
+
+  server.registerTool(
+    "export_resources",
+    {
+      description: "Export files or directories as a zip archive",
+      inputSchema: {
+        paths: z
+          .array(z.string())
+          .describe(
+            "Full storage paths, e.g. /data/20210817205410-2kvfpfn/xxx.sy",
+          ),
+        name: z
+          .string()
+          .optional()
+          .describe(
+            "Zip filename without extension (auto-generated if omitted)",
+          ),
+      },
+      outputSchema: {
+        path: z.string(),
+      },
+    },
+    async ({ paths, name }) => {
+      const client = getClient();
+      const result = await client.exportResources(paths, name);
+      const structuredContent = { path: result.path };
+      return {
+        content: [
+          { type: "text", text: JSON.stringify(structuredContent, null, 2) },
+        ],
+        structuredContent,
+      };
     },
   );
 }
