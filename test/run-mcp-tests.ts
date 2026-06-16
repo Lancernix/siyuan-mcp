@@ -38,14 +38,15 @@ async function runMCPTests(config: EnvConfig): Promise<TestResult[]> {
   const results: TestResult[] = [];
 
   return new Promise((resolve) => {
-    const server = spawn("bun", ["src/server.ts"], {
+    const server = spawn("tsx", ["src/server.ts"], {
       cwd: process.cwd(),
-      env: {
-        ...process.env,
-        SIYUAN_API_URL: config.SIYUAN_API_URL,
-        SIYUAN_API_TOKEN: config.SIYUAN_API_TOKEN,
+        env: {
+          ...process.env,
+          SIYUAN_API_URL: config.SIYUAN_API_URL,
+          SIYUAN_API_TOKEN: config.SIYUAN_API_TOKEN,
+        },
       },
-    });
+    );
 
     let buffer = "";
     const tests: Array<{
@@ -66,7 +67,7 @@ async function runMCPTests(config: EnvConfig): Promise<TestResult[]> {
           const message = JSON.parse(line);
 
           if (message.jsonrpc === "2.0" && message.method === "initialize") {
-            console.log("✅ 初始化消息接收");
+            console.log("Initialize message received");
           }
 
           if (message.id && message.result) {
@@ -76,7 +77,7 @@ async function runMCPTests(config: EnvConfig): Promise<TestResult[]> {
               results.push({
                 toolName: test.tool,
                 passed: true,
-                message: `成功调用 - 返回数据项数: ${message.result.content?.length || 0}`,
+                message: `Called successfully - returned ${message.result.content?.length || 0} items`,
                 duration: 100,
               });
               tests.splice(testIndex, 1);
@@ -84,10 +85,10 @@ async function runMCPTests(config: EnvConfig): Promise<TestResult[]> {
           }
 
           if (message.error) {
-            console.log(`⚠️  错误: ${JSON.stringify(message.error)}`);
+            console.log(`Error: ${JSON.stringify(message.error)}`);
           }
         } catch {
-          // 忽略非JSON行
+          // Ignore non-JSON lines
         }
       }
 
@@ -101,7 +102,6 @@ async function runMCPTests(config: EnvConfig): Promise<TestResult[]> {
       console.error(`stderr: ${data}`);
     });
 
-    // 发送测试请求
     const toolTests = [
       { tool: "tools/list", args: {} },
       {
@@ -145,22 +145,22 @@ async function runMCPTests(config: EnvConfig): Promise<TestResult[]> {
 
 async function main() {
   console.log("═══════════════════════════════════════════════════");
-  console.log("   SiYuan MCP 自动化功能测试");
+  console.log("   SiYuan MCP Automated Functional Tests");
   console.log("═══════════════════════════════════════════════════\n");
 
   const config = loadEnv();
 
   if (!config.SIYUAN_API_TOKEN) {
-    console.log("❌ 错误: .env.local中未找到SIYUAN_API_TOKEN\n");
+    console.log("Error: SIYUAN_API_TOKEN not found in .env.local\n");
     process.exit(1);
   }
 
-  console.log("🚀 启动MCP服务器并执行测试...\n");
+  console.log("Starting MCP server and running tests...\n");
 
   const results = await runMCPTests(config);
 
   console.log("\n═══════════════════════════════════════════════════");
-  console.log("📊 测试结果");
+  console.log("Test Results");
   console.log("═══════════════════════════════════════════════════\n");
 
   let passed = 0;
@@ -168,27 +168,29 @@ async function main() {
 
   for (const result of results) {
     if (result.passed) {
-      console.log(`✅ ${result.toolName}`);
+      console.log(`✓ ${result.toolName}`);
       console.log(`   ${result.message}`);
       passed++;
     } else {
-      console.log(`❌ ${result.toolName}`);
+      console.log(`✗ ${result.toolName}`);
       console.log(`   ${result.message}`);
       failed++;
     }
   }
 
   console.log("\n───────────────────────────────────────────────────");
-  console.log(`总计: ${passed + failed} | 通过: ${passed} | 失败: ${failed}`);
+  console.log(`Total: ${passed + failed} | Passed: ${passed} | Failed: ${failed}`);
   console.log("───────────────────────────────────────────────────\n");
 
   if (failed === 0 && results.length > 0) {
-    console.log("✅ 所有测试通过！\n");
+    console.log("All tests passed!\n");
   } else if (results.length === 0) {
-    console.log("⚠️  未能获取测试结果。请确保思源笔记API可访问。\n");
+    console.log("No test results obtained. Please ensure SiYuan API is accessible.\n");
   }
 
-  console.log("📝 下一步: 运行 'bun run inspect' 进行交互式验证\n");
+  console.log(
+    "Next step: Run 'npx @modelcontextprotocol/inspector' for interactive verification\n",
+  );
 }
 
 main().catch(console.error);

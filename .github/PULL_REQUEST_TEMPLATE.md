@@ -23,8 +23,8 @@ Closes #
 ## ✅ 检查清单
 
 - [ ] 代码遵循项目的代码风格规范
-- [ ] 运行了 `bun run lint` 且无错误
-- [ ] 运行了 `bun run build` 且构建成功
+- [ ] 运行了 `pnpm run check` 且无错误
+- [ ] 运行了 `pnpm run build` 且构建成功
 - [ ] 更新了相关文档（如有必要）
 - [ ] Commit message 遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范
 

@@ -18,25 +18,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
-      
+          node-version: '24'
+          cache: 'pnpm'
+
       - name: Install dependencies
-        run: bun install
-      
+        run: pnpm install
+
       - name: Lint and type check
-        run: bun run lint
-      
+        run: pnpm run check
+
       - name: Build verification
-        run: bun run build
-      
+        run: pnpm run build
+
       - name: Check build artifacts
         run: |
           if [ ! -f "dist/server.js" ]; then
-            echo "❌ Build failed: dist/server.js not found"
+            echo "Build failed: dist/server.js not found"
             exit 1
           fi
-          echo "✅ Build artifacts verified"
+          echo "Build artifacts verified"
