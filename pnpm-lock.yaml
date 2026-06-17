@@ -27,6 +27,9 @@ importers:
       '@types/node':
         specifier: ^25.1.0
         version: 25.9.3
+      semantic-release:
+        specifier: ^25.0.2
+        version: 25.0.5(typescript@5.9.3)
       tsup:
         specifier: ^8.4.0
         version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
