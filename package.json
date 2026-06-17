@@ -1,6 +1,6 @@
 {
   "name": "@lancernix/siyuan-mcp",
-  "version": "1.1.0",
+  "version": "0.0.0-development",
   "packageManager": "pnpm@11.7.0",
   "bin": {
     "siyuan-mcp": "dist/server.js"
@@ -62,9 +62,14 @@
     "@types/node": "^25.1.0",
     "tsup": "^8.4.0",
     "tsx": "^4.22.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "semantic-release": "^25.0.2"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "volta": {
+    "node": "24.16.0",
+    "pnpm": "11.7.0"
   }
 }
